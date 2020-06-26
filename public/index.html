@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, shrink-to-fit=yes">
+  <meta name="theme-color" content="#3a7ce0">
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <title>Etmr.io - Short URLs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.4.6/tailwind.css">
+</head>
+<body>
+  <div id="tsebehtsisjtcaer" class="fixed flex h-full w-screen">
+    <div class="flex flex-1 flex-col items-center justify-center">
+      <h1 class="text-xl text-blue-300 mb-4" v-on:click="onCopy">{{ title }}/<span class="font-extrabold text-blue-600">{{ slug }}</span></h1>
+      <div v-if="messageType == 'success'">
+        <div class="py-2 text-green-400 w-64 text-center">
+          {{ message }}
+        </div>
+      </div>
+      <div v-if="messageType == 'error'">
+        <div class="py-2 text-red-400 w-64 text-center">
+          {{ message }}
+        </div>
+      </div>
+      <form v-on:submit.prevent="onSubmit">
+        <div class="mb-4 w-64">
+          <input required class="py-1 w-full text-sm outline-none placeholder-blue-400 border-b-4 border-blue-400" placeholder="Enter Link (https://...)" v-model="link" type="text" />
+        </div>
+        <div class="mb-4 w-64" v-if="toggle">
+          <input required class="py-1 w-full outline-none text-sm placeholder-blue-400 border-b-4 border-blue-400" placeholder="Slug" v-model="slug" type="text" />
+        </div>
+        <div v-on:click="onToggle" class="flex flex-row-reverse justify-center cursor-pointer text-blue-400">
+          <span class="text-xs ml-2">Custom Slug</span>
+          <input v-model="toggle" class="m-0" type="checkbox" />
+        </div>
+        <div class="flex flex-col py-4 w-64">
+          <button class="bg-blue-400 w-full text-white p-2 rounded shadow-lg border border-blue-600 uppercase" type="submit">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+    var app = new Vue({
+      el: "#tsebehtsisjtcaer",
+      data: {
+        toggle: true,
+        title: "etmr.io",
+        link: "",
+        slug: "",
+        message: null,
+        messageType: "success", 
+      },
+      methods: {
+        onSubmit: async function () {
+          const response = await fetch("/api/url", {
+            method: 'post',
+            headers: {
+              headers: {
+                "Content-type": "application/json; charset=UTF-8"
+              },
+            },
+            body: JSON.stringify({ slug: this.slug, link: this.link })
+          })
+          
+          const data = await response.json()
+          this.message = data.message
+
+          if (!response.ok) {
+            this.messageType = "error"
+          } else {
+            this.messageType = "success"
+          }
+
+        },
+        onToggle: function () {
+          this.toggle = !this.toggle
+        },
+        onCopy: function () {
+          var copyText = this.$refs.text;
+          document.execCommand("copy");
+        }
+      }
+    })
+
+  </script>
+</body>
+</html>
